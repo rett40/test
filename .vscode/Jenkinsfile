@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Cloner votre dépôt GitHub
-                git branch: 'main', url: 'https://github.com/votre-utilisateur/votre-repository.git'  // Remplacez par votre URL GitHub
+                git branch: 'main', url: 'https://github.com/rett40/devops.git'  // Remplacez par votre URL GitHub
             }
         }
 
