@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "aziz40/static-api:latest"  // Image Docker que nous allons utiliser
+        DOCKER_HUB_CREDENTIALS = "docker-hub-credentials"  // Identifiants Docker Hub
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Cloner votre dépôt GitHub
+                git branch: 'main', url: 'https://github.com/votre-utilisateur/votre-repository.git'  // Remplacez par votre URL GitHub
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Construire l'image Docker
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Se connecter à Docker Hub avec des identifiants sécurisés
+                    withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    }
+
+                    // Pousser l'image Docker vers Docker Hub
+                    sh "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+
+        stage('Deploy Docker Container') {
+            steps {
+                script {
+                    // Déployer un conteneur Docker à partir de l'image poussée
+                    sh "docker run -d -p 3000:3000 ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+}
